@@ -210,40 +210,6 @@
 
             /*--------------------------------------------------------------------------------------------------------*/
 
-            // Test for IE deleteContents() and extractContents() bug and correct it. See issue 107.
-
-            var el = document.createElement("div");
-            el.innerHTML = "123";
-            var textNode = el.firstChild;
-            var body = getBody(document);
-            body.appendChild(el);
-
-            range.setStart(textNode, 1);
-            range.setEnd(textNode, 2);
-            range.deleteContents();
-
-            if (textNode.data == "13") {
-                // Behaviour is correct per DOM4 Range so wrap the browser's implementation of deleteContents() and
-                // extractContents()
-                rangeProto.deleteContents = function() {
-                    this.nativeRange.deleteContents();
-                    updateRangeProperties(this);
-                };
-
-                rangeProto.extractContents = function() {
-                    var frag = this.nativeRange.extractContents();
-                    updateRangeProperties(this);
-                    return frag;
-                };
-            } else {
-                log.info("Incorrect native Range deleteContents() implementation. Using Rangy's own.")
-            }
-
-            body.removeChild(el);
-            body = null;
-
-            /*--------------------------------------------------------------------------------------------------------*/
-
             // Test for existence of createContextualFragment and delegate to it if it exists
             if (util.isHostMethod(range, "createContextualFragment")) {
                 rangeProto.createContextualFragment = function(fragmentStr) {
